@@ -1,7 +1,7 @@
 import Foundation
 import SystemConfiguration
 
-enum DomainTarget {
+enum DomainTarget: Equatable {
   case system
   case gui(uid_t)
 

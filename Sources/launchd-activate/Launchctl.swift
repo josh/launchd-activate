@@ -12,17 +12,30 @@ extension Launchctl {
 }
 
 extension Launchctl {
-  private func run(_ arguments: [String]) throws {
+  private func run(_ arguments: [String], sudo: Bool = false) throws {
     if dryRun == true {
-      printDryRun("launchctl", arguments)
+      if sudo {
+        printDryRun("sudo", ["launchctl"] + arguments)
+      } else {
+        printDryRun("launchctl", arguments)
+      }
       return
     }
 
-    printXtrace("launchctl", arguments)
+    if sudo {
+      printXtrace("sudo", ["launchctl"] + arguments)
+    } else {
+      printXtrace("launchctl", arguments)
+    }
 
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-    process.arguments = arguments
+    if sudo {
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
+      process.arguments = ["--", "/bin/launchctl"] + arguments
+    } else {
+      process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+      process.arguments = arguments
+    }
 
     try! process.run()
     process.waitUntilExit()
@@ -33,11 +46,11 @@ extension Launchctl {
   }
 
   func bootstrap(domain: DomainTarget, path: URL...) throws {
-    try run(["bootstrap", "\(domain)"] + path.map { $0.path })
+    try run(["bootstrap", "\(domain)"] + path.map { $0.path }, sudo: domain == .system)
   }
 
   func bootout(service: ServiceTarget) throws {
-    try run(["bootout", "\(service)"])
+    try run(["bootout", "\(service)"], sudo: service.domain == .system)
   }
 }
 
