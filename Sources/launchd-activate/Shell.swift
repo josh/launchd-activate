@@ -17,10 +17,9 @@ func printDryRun(_ command: String, _ args: [String]) {
 }
 
 func shellEscape(_ arguments: [String]) -> String {
+  let unsafeChars = CharacterSet(charactersIn: "\"'`$&()|[]{}*?!<>;#~%").union(.whitespacesAndNewlines)
   return arguments.map { arg in
-    if arg.isEmpty
-      || arg.contains(where: { $0.isWhitespace || "\"'`$&()|[]{}*?!<>;#~%".contains($0) })
-    {
+    if arg.isEmpty || arg.rangeOfCharacter(from: unsafeChars) != nil {
       return "\"\(arg.replacingOccurrences(of: "\"", with: "\\\""))\""
     } else {
       return arg
