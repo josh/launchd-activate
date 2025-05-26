@@ -145,7 +145,7 @@ struct Command {
       do {
         try self.launchServicePath.install(
           label: label,
-          sourcePath: self.newPath.appendingPathComponent("\(label).plist"),
+          sourcePath: self.newPath.appendingPathComponent(label).appendingPathExtension("plist"),
           method: installMethod,
           dryRun: dryRun
         )
