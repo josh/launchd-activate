@@ -204,8 +204,9 @@ struct Command {
     let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path)
     var labels: Set<String> = []
     for content in contents {
-      guard content.hasSuffix(".plist") else { continue }
-      labels.insert(String(content.dropLast(6)))
+      let url = URL(fileURLWithPath: content)
+      guard url.pathExtension == "plist" else { continue }
+      labels.insert(url.deletingPathExtension().lastPathComponent)
     }
     return labels
   }
