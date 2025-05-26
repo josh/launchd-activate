@@ -15,6 +15,6 @@ struct ServiceTarget {
 
 extension ServiceTarget: CustomStringConvertible {
   var description: String {
-    return "\(domain)/\(label)"
+    "\(domain)/\(label)"
   }
 }

@@ -6,7 +6,7 @@ enum LaunchServicePath {
   case user(URL)
 
   static var currentUser: Self {
-    return .user(FileManager.default.homeDirectoryForCurrentUser)
+    .user(FileManager.default.homeDirectoryForCurrentUser)
   }
 }
 
@@ -21,11 +21,11 @@ extension LaunchServicePath {
   var url: URL {
     switch self {
     case .system:
-      return URL(fileURLWithPath: "/Library/LaunchDaemons")
+      URL(fileURLWithPath: "/Library/LaunchDaemons")
     case .allUsers:
-      return URL(fileURLWithPath: "/Library/LaunchAgents")
+      URL(fileURLWithPath: "/Library/LaunchAgents")
     case .user(let homeURL):
-      return homeURL.appendingPathComponent("Library/LaunchAgents")
+      homeURL.appendingPathComponent("Library/LaunchAgents")
     }
   }
 

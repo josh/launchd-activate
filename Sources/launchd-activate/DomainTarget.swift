@@ -18,7 +18,7 @@ enum DomainTarget {
 
 extension DomainTarget {
   func service(label: String) -> ServiceTarget {
-    return ServiceTarget(domain: self, label: label)
+    ServiceTarget(domain: self, label: label)
   }
 }
 
@@ -26,9 +26,9 @@ extension DomainTarget: CustomStringConvertible {
   var description: String {
     switch self {
     case .system:
-      return "system"
+      "system"
     case .gui(let uid):
-      return "gui/\(uid)"
+      "gui/\(uid)"
     }
   }
 }
