@@ -60,10 +60,7 @@ extension LaunchServicePath {
         try? FileManager.default.removeItem(at: destination)
       }
 
-      try FileManager.default.createSymbolicLink(
-        atPath: destination.path,
-        withDestinationPath: sourcePath.path
-      )
+      try FileManager.default.createSymbolicLink(at: destination, withDestinationURL: sourcePath)
 
       let realpath = try FileManager.default.destinationOfSymbolicLink(atPath: destination.path)
       assert(realpath == sourcePath.path)
