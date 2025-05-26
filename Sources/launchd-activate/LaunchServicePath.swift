@@ -1,6 +1,6 @@
 import Foundation
 
-enum LaunchServicePath {
+enum LaunchServicePath: Equatable {
   case system
   case allUsers
   case user(URL)
@@ -34,6 +34,17 @@ extension LaunchServicePath {
   func plist(label: String) -> URL {
     url.appendingPathComponent(label).appendingPathExtension("plist")
   }
+
+  var needsSudo: Bool {
+    switch self {
+    case .system:
+      return true
+    case .allUsers:
+      return true
+    case .user(_):
+      return false
+    }
+  }
 }
 
 extension LaunchServicePath: CustomStringConvertible {
@@ -48,30 +59,21 @@ extension LaunchServicePath {
     dryRun: Bool = false
   ) throws {
     let destination = plist(label: label)
+    let shellUtils = ShellUtils(dryRun: dryRun)
 
     if method == .symlink {
-      guard !dryRun else {
-        let force = FileManager.default.fileExists(atPath: destination.path)
-        printDryRun("ln", [force ? "-fs" : "-s", sourcePath.path, destination.path])
-        return
-      }
-
-      if FileManager.default.fileExists(atPath: destination.path) {
-        try? FileManager.default.removeItem(at: destination)
-      }
-
-      try FileManager.default.createSymbolicLink(at: destination, withDestinationURL: sourcePath)
+      try shellUtils.lnSymlink(
+        sourceFile: sourcePath.path,
+        targetFile: destination.path,
+        sudo: needsSudo,
+        force: FileManager.default.fileExists(atPath: destination.path)
+      )
 
       let realpath = try FileManager.default.destinationOfSymbolicLink(atPath: destination.path)
       assert(realpath == sourcePath.path)
-
     } else {
-      guard !dryRun else {
-        printDryRun("cp", [sourcePath.path, destination.path])
-        return
-      }
+      try shellUtils.cp(sourceFile: sourcePath.path, targetFile: destination.path, sudo: needsSudo)
 
-      try FileManager.default.copyItem(at: sourcePath, to: destination)
       assert(FileManager.default.fileExists(atPath: destination.path))
     }
   }
@@ -83,12 +85,8 @@ extension LaunchServicePath {
       return
     }
 
-    guard !dryRun else {
-      printDryRun("rm", [path.path])
-      return
-    }
+    try ShellUtils(dryRun: dryRun).rm(file: path.path, sudo: needsSudo)
 
-    try FileManager.default.removeItem(at: path)
     assert(!FileManager.default.fileExists(atPath: path.path))
   }
 }
