@@ -14,7 +14,6 @@ struct Command {
 
   var newPath: URL!
   var oldPath: URL?
-  let launchctl: Launchctl
 
   static func main() {
     do {
@@ -32,8 +31,6 @@ struct Command {
     var stderr = StandardErrorStream()
 
     var args: [String] = []
-
-    self.launchctl = Launchctl(dryRun: dryRun)
 
     for arg in arguments.dropFirst() {
       if arg.hasPrefix("--") {
@@ -102,6 +99,8 @@ struct Command {
       self.oldPath = oldPath
     }
   }
+
+  var launchctl: Launchctl { Launchctl(dryRun: dryRun) }
 
   func printUsage() {
     print("usage: launchd-activate [--system | --user | --user-all] NEW [OLD]")
