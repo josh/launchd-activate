@@ -88,7 +88,7 @@ extension Launchctl {
     let clock = ContinuousClock()
     let start = clock.now
     while try loadState(service: service) != loaded {
-      if clock.now.duration(to: start) > timeout {
+      if clock.now - start > timeout {
         var stderr = StandardErrorStream()
         print("[ERROR] Timed out waiting for \(service) to \(stateStr)", to: &stderr)
         throw Launchctl.Error.timeout(service: service)
