@@ -57,7 +57,7 @@ extension LaunchServicePath {
       }
 
       if FileManager.default.fileExists(atPath: destination.path) {
-        try? FileManager.default.removeItem(atPath: destination.path)
+        try? FileManager.default.removeItem(at: destination)
       }
 
       try FileManager.default.createSymbolicLink(
@@ -91,7 +91,7 @@ extension LaunchServicePath {
       return
     }
 
-    try FileManager.default.removeItem(atPath: path.path)
+    try FileManager.default.removeItem(at: path)
     assert(!FileManager.default.fileExists(atPath: path.path))
   }
 }
