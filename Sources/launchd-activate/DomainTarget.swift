@@ -26,9 +26,9 @@ extension DomainTarget: CustomStringConvertible {
   var description: String {
     switch self {
     case .system:
-      "system"
+      return "system"
     case .gui(let uid):
-      "gui/\(uid)"
+      return "gui/\(uid)"
     }
   }
 }

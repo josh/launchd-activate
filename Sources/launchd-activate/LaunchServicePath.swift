@@ -21,11 +21,11 @@ extension LaunchServicePath {
   var url: URL {
     switch self {
     case .system:
-      URL(fileURLWithPath: "/Library/LaunchDaemons")
+      return URL(fileURLWithPath: "/Library/LaunchDaemons")
     case .allUsers:
-      URL(fileURLWithPath: "/Library/LaunchAgents")
+      return URL(fileURLWithPath: "/Library/LaunchAgents")
     case .user(let homeURL):
-      homeURL.appendingPathComponent("Library/LaunchAgents")
+      return homeURL.appendingPathComponent("Library/LaunchAgents")
     }
   }
 
