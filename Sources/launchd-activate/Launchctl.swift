@@ -6,75 +6,53 @@ struct Launchctl {
 
 extension Launchctl {
   enum Error: Swift.Error {
-    case nonZeroExit(code: Int32, stderr: String)
+    case nonZeroExit(code: Int32)
     case timeout(service: ServiceTarget)
   }
 }
 
 extension Launchctl {
-  private struct ProcessResult {
-    var stdout: Data = Data()
-    var stderr: Data = Data()
-    var exitCode: Int32 = 0
-
-    func checkError() throws {
-      guard exitCode == 0 else {
-        throw Error.nonZeroExit(code: exitCode, stderr: String(data: stderr, encoding: .utf8) ?? "")
-      }
+  private func run(_ arguments: [String]) throws {
+    if dryRun == true {
+      printDryRun("launchctl", arguments)
+      return
     }
-  }
 
-  private func run(
-    _ arguments: [String],
-    dryRun: Bool = false,
-    xtrace: Bool = true
-  ) -> ProcessResult {
+    printXtrace("launchctl", arguments)
+
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
     process.arguments = arguments
 
-    let stdoutPipe = Pipe()
-    let stderrPipe = Pipe()
-    process.standardOutput = stdoutPipe
-    process.standardError = stderrPipe
-
-    if dryRun == true {
-      printDryRun("launchctl", arguments)
-      return ProcessResult()
-    }
-
-    if xtrace {
-      printXtrace("launchctl", arguments)
-    }
-
     try! process.run()
     process.waitUntilExit()
 
-    let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
-    let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-
-    return ProcessResult(
-      stdout: stdoutData,
-      stderr: stderrData,
-      exitCode: process.terminationStatus
-    )
+    if process.terminationStatus != 0 {
+      throw Error.nonZeroExit(code: process.terminationStatus)
+    }
   }
 
   func bootstrap(domain: DomainTarget, path: URL...) throws {
-    let result = run(["bootstrap", "\(domain)"] + path.map { $0.path }, dryRun: dryRun)
-    try result.checkError()
+    try run(["bootstrap", "\(domain)"] + path.map { $0.path })
   }
 
   func bootout(service: ServiceTarget) throws {
-    let result = run(["bootout", "\(service)"], dryRun: dryRun)
-    try result.checkError()
+    try run(["bootout", "\(service)"])
   }
 }
 
 extension Launchctl {
   func loadState(service: ServiceTarget) -> Bool {
-    let result = run(["print", "\(service)"], dryRun: false, xtrace: false)
-    return result.exitCode == 0
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+    process.arguments = ["print", "\(service)"]
+    process.standardOutput = Pipe()
+    process.standardError = Pipe()
+
+    try! process.run()
+    process.waitUntilExit()
+
+    return process.terminationStatus == 0
   }
 
   func waitForLoadState(service: ServiceTarget, loaded: Bool, timeout: Duration) throws {
