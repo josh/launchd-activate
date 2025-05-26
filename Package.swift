@@ -8,6 +8,10 @@ let package = Package(
     .macOS(.v13)
   ],
   targets: [
-    .executableTarget(name: "launchd-activate")
+    .executableTarget(name: "launchd-activate"),
+    .testTarget(
+      name: "CLITests",
+      dependencies: ["launchd-activate"]
+    ),
   ]
 )

@@ -20,3 +20,6 @@ jobs:
 
       - name: Run executable
         run: swift run launchd-activate --help
+
+      - name: Run tests
+        run: swift test
