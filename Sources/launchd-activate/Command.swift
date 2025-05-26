@@ -32,7 +32,7 @@ struct Command {
 
     var args: [String] = []
 
-    for arg in Array(arguments.dropFirst()) {
+    for arg in arguments.dropFirst() {
       if arg.hasPrefix("--") {
         switch arg {
         case "-h", "--help":
