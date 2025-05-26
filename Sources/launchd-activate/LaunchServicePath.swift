@@ -69,12 +69,16 @@ extension LaunchServicePath {
         force: FileManager.default.fileExists(atPath: destination.path)
       )
 
-      let realpath = try FileManager.default.destinationOfSymbolicLink(atPath: destination.path)
-      assert(realpath == sourcePath.path)
+      if dryRun == false {
+        let realpath = try FileManager.default.destinationOfSymbolicLink(atPath: destination.path)
+        assert(realpath == sourcePath.path)
+      }
     } else {
       try shellUtils.cp(sourceFile: sourcePath.path, targetFile: destination.path, sudo: needsSudo)
 
-      assert(FileManager.default.fileExists(atPath: destination.path))
+      if dryRun == false {
+        assert(FileManager.default.fileExists(atPath: destination.path))
+      }
     }
   }
 
