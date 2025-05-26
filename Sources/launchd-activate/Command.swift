@@ -200,10 +200,10 @@ struct Command {
   }
 
   func plistFilenames(in directory: URL) throws -> Set<String> {
-    let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+    let contents = try FileManager.default.contentsOfDirectory(
+      at: directory, includingPropertiesForKeys: nil)
     var labels: Set<String> = []
-    for content in contents {
-      let url = URL(fileURLWithPath: content)
+    for url in contents {
       guard url.pathExtension == "plist" else { continue }
       labels.insert(url.deletingPathExtension().lastPathComponent)
     }
