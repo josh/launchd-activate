@@ -157,7 +157,7 @@ struct Command {
 
     for service in bootoutServices {
       do {
-        if try launchctl.loadState(service: service) == true {
+        if launchctl.loadState(service: service) == true {
           try launchctl.bootout(service: service)
         }
       } catch {
