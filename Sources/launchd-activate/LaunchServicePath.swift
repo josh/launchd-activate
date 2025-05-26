@@ -45,7 +45,7 @@ extension LaunchServicePath {
     label: String,
     sourcePath: URL,
     method: InstallMethod = .symlink,
-    dryRun: Bool = false,
+    dryRun: Bool = false
   ) throws {
     let destination = plist(label: label)
 
