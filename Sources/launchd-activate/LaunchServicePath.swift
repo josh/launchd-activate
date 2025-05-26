@@ -32,7 +32,7 @@ extension LaunchServicePath {
   var path: String { url.path }
 
   func plist(label: String) -> URL {
-    url.appendingPathComponent("\(label).plist")
+    url.appendingPathComponent(label).appendingPathExtension("plist")
   }
 }
 
