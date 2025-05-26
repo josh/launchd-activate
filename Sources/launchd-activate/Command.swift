@@ -14,6 +14,7 @@ struct Command {
 
   var newPath: URL!
   var oldPath: URL?
+  let launchctl: Launchctl
 
   static func main() {
     do {
@@ -31,6 +32,8 @@ struct Command {
     var stderr = StandardErrorStream()
 
     var args: [String] = []
+
+    self.launchctl = Launchctl(dryRun: dryRun)
 
     for arg in arguments.dropFirst() {
       if arg.hasPrefix("--") {
@@ -106,10 +109,6 @@ struct Command {
 
   func printVersion() {
     print(version)
-  }
-
-  var launchctl: Launchctl {
-    return Launchctl(dryRun: dryRun)
   }
 
   func run() throws -> Int32 {
