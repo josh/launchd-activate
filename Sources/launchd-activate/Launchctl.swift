@@ -46,10 +46,14 @@ extension Launchctl {
   }
 
   func bootstrap(domain: DomainTarget, path: URL...) throws {
+    for path in path {
+      assert(loadState(domain: domain, path: path) == false)
+    }
     try run(["bootstrap", "\(domain)"] + path.map { $0.path }, sudo: domain == .system)
   }
 
   func bootout(service: ServiceTarget) throws {
+    assert(loadState(service: service) == true)
     try run(["bootout", "\(service)"], sudo: service.domain == .system)
   }
 }
@@ -66,6 +70,10 @@ extension Launchctl {
     process.waitUntilExit()
 
     return process.terminationStatus == 0
+  }
+
+  func loadState(domain: DomainTarget, path: URL) -> Bool {
+    return loadState(service: domain.service(path: path))
   }
 
   func waitForLoadState(service: ServiceTarget, loaded: Bool, timeout: Duration) throws {

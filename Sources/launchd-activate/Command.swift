@@ -111,40 +111,41 @@ struct Command {
   }
 
   func run() throws -> Int32 {
-    let newLabels = try plistFilenames(in: self.newPath)
+    let newServices = try readServices(in: self.newPath)
 
-    var oldLabels: Set<String> = []
+    var oldServices: Set<ServiceTarget> = []
     if let oldPath = self.oldPath {
-      oldLabels = try plistFilenames(in: oldPath)
+      oldServices = try readServices(in: oldPath)
     }
 
-    let addedLabels = newLabels.subtracting(oldLabels)
-    let removedLabels = oldLabels.subtracting(newLabels)
-    let changedLabels = newLabels.intersection(oldLabels)
+    let addedServices = newServices.subtracting(oldServices)
+    let removedServices = oldServices.subtracting(newServices)
+    let changedServices = newServices.intersection(oldServices)
 
-    let bootoutServices = removedLabels.union(changedLabels).map { domain.service(label: $0) }
-    let bootstrapServices = addedLabels.union(changedLabels).map { domain.service(label: $0) }
+    let bootoutServices = removedServices.union(changedServices)
+    let bootstrapServices = addedServices.union(changedServices)
 
-    let uninstallLabels = removedLabels
-    let installLabels = addedLabels.union(changedLabels)
+    let uninstallServices = removedServices
+    let installServices = addedServices.union(changedServices)
 
     var stderr = StandardErrorStream()
     var exitCode: Int32 = 0
 
-    for label in uninstallLabels {
+    for service in uninstallServices {
       do {
-        try self.launchServicePath.uninstall(label: label, dryRun: dryRun)
+        try self.launchServicePath.uninstall(label: service.label, dryRun: dryRun)
       } catch {
         print("\(error)", to: &stderr)
         exitCode += 1
       }
     }
 
-    for label in installLabels {
+    for service in installServices {
       do {
         try self.launchServicePath.install(
-          label: label,
-          sourcePath: self.newPath.appendingPathComponent(label).appendingPathExtension("plist"),
+          label: service.label,
+          sourcePath: self.newPath.appendingPathComponent(service.label).appendingPathExtension(
+            "plist"),
           method: installMethod,
           dryRun: dryRun
         )
@@ -198,14 +199,14 @@ struct Command {
     return exitCode
   }
 
-  func plistFilenames(in directory: URL) throws -> Set<String> {
+  func readServices(in directory: URL) throws -> Set<ServiceTarget> {
     let contents = try FileManager.default.contentsOfDirectory(
       at: directory, includingPropertiesForKeys: nil)
-    var labels: Set<String> = []
+    var services: Set<ServiceTarget> = []
     for url in contents {
       guard url.pathExtension == "plist" else { continue }
-      labels.insert(url.deletingPathExtension().lastPathComponent)
+      services.insert(domain.service(path: url))
     }
-    return labels
+    return services
   }
 }

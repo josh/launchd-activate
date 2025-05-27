@@ -13,6 +13,10 @@ struct ServiceTarget {
   }
 }
 
+extension ServiceTarget: Equatable {}
+
+extension ServiceTarget: Hashable {}
+
 extension ServiceTarget: CustomStringConvertible {
   var description: String {
     "\(domain)/\(label)"

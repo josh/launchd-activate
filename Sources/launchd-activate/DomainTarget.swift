@@ -1,7 +1,7 @@
 import Foundation
 import SystemConfiguration
 
-enum DomainTarget: Equatable {
+enum DomainTarget {
   case system
   case gui(uid_t)
 
@@ -16,9 +16,18 @@ enum DomainTarget: Equatable {
   }
 }
 
+extension DomainTarget: Equatable {}
+
+extension DomainTarget: Hashable {}
+
 extension DomainTarget {
   func service(label: String) -> ServiceTarget {
     ServiceTarget(domain: self, label: label)
+  }
+
+  func service(path: URL) -> ServiceTarget {
+    let label = path.deletingPathExtension().lastPathComponent
+    return service(label: label)
   }
 }
 
