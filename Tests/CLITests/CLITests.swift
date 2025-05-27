@@ -40,9 +40,10 @@ final class CLITests: XCTestCase {
   }
 
   var launchAgentsDirectory: URL {
-    let thisSourceFile = URL(fileURLWithPath: #file)
-    let thisDirectory = thisSourceFile.deletingLastPathComponent()
-    return thisDirectory.appendingPathComponent("LaunchAgents")
+    guard let url = Bundle.module.url(forResource: "LaunchAgents", withExtension: nil) else {
+      fatalError("Could not find LaunchAgents directory in bundle resources")
+    }
+    return url
   }
 
   var productsDirectory: URL {

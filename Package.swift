@@ -11,7 +11,10 @@ let package = Package(
     .executableTarget(name: "launchd-activate"),
     .testTarget(
       name: "CLITests",
-      dependencies: ["launchd-activate"]
+      dependencies: ["launchd-activate"],
+      resources: [
+        .copy("LaunchAgents")
+      ]
     ),
   ]
 )
