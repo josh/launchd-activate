@@ -45,7 +45,7 @@ extension Launchctl {
     }
   }
 
-  func bootstrap(domain: DomainTarget, path: URL...) throws {
+  func bootstrap(domain: DomainTarget, path: ServicePath...) throws {
     for path in path {
       assert(loadState(domain: domain, path: path) == false)
     }
@@ -72,7 +72,7 @@ extension Launchctl {
     return process.terminationStatus == 0
   }
 
-  func loadState(domain: DomainTarget, path: URL) -> Bool {
+  func loadState(domain: DomainTarget, path: ServicePath) -> Bool {
     return loadState(service: domain.service(path: path))
   }
 
