@@ -41,7 +41,7 @@ extension LaunchServicePath {
       return true
     case .allUsers:
       return true
-    case .user(_):
+    case .user:
       return false
     }
   }
