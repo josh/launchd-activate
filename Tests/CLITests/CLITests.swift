@@ -35,7 +35,8 @@ final class CLITests: XCTestCase {
   }
 
   func testActivateDryRun() throws {
-    let (process, output) = try launchdActivate("--dry-run", launchAgentsDirectory.path)
+    let dir = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", dir.path)
     XCTAssertEqual(process.terminationStatus, 0, output)
   }
 
