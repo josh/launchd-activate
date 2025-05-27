@@ -42,6 +42,9 @@ extension ShellUtils {
   func lnSymlink(sourceFile: String, targetFile: String, sudo: Bool = false, force: Bool = false)
     throws
   {
+    assert(sourceFile != targetFile)
+    assert(FileManager.default.fileExists(atPath: sourceFile))
+
     let opts = force ? "-fs" : "-s"
 
     if dryRun == true {
@@ -77,6 +80,9 @@ extension ShellUtils {
   }
 
   func cp(sourceFile: String, targetFile: String, sudo: Bool = false) throws {
+    assert(sourceFile != targetFile)
+    assert(FileManager.default.fileExists(atPath: sourceFile))
+
     if dryRun == true {
       if sudo {
         printDryRun("sudo", ["cp", sourceFile, targetFile])
@@ -110,6 +116,8 @@ extension ShellUtils {
   }
 
   func rm(file: String, sudo: Bool = false) throws {
+    assert(FileManager.default.fileExists(atPath: file))
+
     if dryRun == true {
       if sudo {
         printDryRun("sudo", ["rm", file])
