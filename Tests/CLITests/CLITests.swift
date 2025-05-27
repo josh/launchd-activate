@@ -34,9 +34,76 @@ final class CLITests: XCTestCase {
     return (process, output)
   }
 
-  func testActivateDryRun() throws {
-    let dir = launchAgentsDirectory.appendingPathComponent("a")
-    let (process, output) = try launchdActivate("--dry-run", dir.path)
+  func testActivate() throws {
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("a")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("c")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("d")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+  }
+
+  func testActivatNoChange() throws {
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("a")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("c")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("d")
+      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+  }
+
+  func testActivateUpdate() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    XCTAssertEqual(process.terminationStatus, 0, output)
+  }
+
+  func testActivateAdd() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("d")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    XCTAssertEqual(process.terminationStatus, 0, output)
+  }
+
+  func testActivateAddRemove() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
     XCTAssertEqual(process.terminationStatus, 0, output)
   }
 
