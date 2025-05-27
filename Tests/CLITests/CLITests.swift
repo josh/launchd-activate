@@ -34,33 +34,59 @@ final class CLITests: XCTestCase {
     return (process, output)
   }
 
-  func testActivate() throws {
+  func testActivateSymlink() throws {
     do {
       let newAgents = launchAgentsDirectory.appendingPathComponent("a")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
       XCTAssertEqual(process.terminationStatus, 0, output)
     }
 
     do {
       let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
       XCTAssertEqual(process.terminationStatus, 0, output)
     }
 
     do {
       let newAgents = launchAgentsDirectory.appendingPathComponent("c")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
       XCTAssertEqual(process.terminationStatus, 0, output)
     }
 
     do {
       let newAgents = launchAgentsDirectory.appendingPathComponent("d")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path)
+      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
       XCTAssertEqual(process.terminationStatus, 0, output)
     }
   }
 
-  func testActivatNoChange() throws {
+  func testActivateCopy() throws {
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("a")
+      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("c")
+      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+
+    do {
+      let newAgents = launchAgentsDirectory.appendingPathComponent("d")
+      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
+      XCTAssertEqual(process.terminationStatus, 0, output)
+    }
+  }
+
+  func testActivateNoChange() throws {
     do {
       let newAgents = launchAgentsDirectory.appendingPathComponent("a")
       let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)

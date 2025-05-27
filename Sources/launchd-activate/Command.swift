@@ -52,9 +52,9 @@ struct Command {
           self.domain = .currentGUI
           self.launchServicePath = .allUsers
           self.installMethod = .copy
-        case "--install=copy":
+        case "--copy":
           self.installMethod = .copy
-        case "--install=symlink":
+        case "--symlink":
           self.installMethod = .symlink
         default:
           printUsage()
