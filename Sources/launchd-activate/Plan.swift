@@ -1,6 +1,8 @@
 import Foundation
 
 struct Plan {
+  let logger: Logger
+
   var enableServicePaths: [ServicePath: ServicePath] = [:]
   var disableServicePaths: Set<ServicePath> = []
 
@@ -15,8 +17,7 @@ extension Plan {
     newPath: URL,
     oldPath: URL?
   ) {
-    var stderr = StandardErrorStream()
-    let launchctl = Launchctl(dryRun: true)
+    let launchctl = Launchctl(logger: logger, dryRun: true)
 
     let newServicePaths = readServicePaths(in: newPath)
 
@@ -44,12 +45,12 @@ extension Plan {
       let destinationServicePath = serviceDirectory.servicePath(name: name)
 
       if FileManager.default.fileExists(atPath: destinationServicePath.path) {
-        print("[WARN] \(destinationServicePath.path) already exists", to: &stderr)
+        logger.warn("\(destinationServicePath.path) already exists")
       }
       enableServicePaths[destinationServicePath] = servicePath
 
       if launchctl.loadState(service: service) == true {
-        print("[WARN] \(service) already loaded", to: &stderr)
+        logger.warn("\(service) already loaded")
         bootoutServices.insert(service)
       }
       bootstrapServices[service] = destinationServicePath
@@ -60,13 +61,13 @@ extension Plan {
       let destinationServicePath = serviceDirectory.servicePath(name: name)
 
       if !FileManager.default.fileExists(atPath: destinationServicePath.path) {
-        print("[WARN] \(destinationServicePath.path) does not exist", to: &stderr)
+        logger.warn("\(destinationServicePath.path) does not exist")
       } else {
         disableServicePaths.insert(destinationServicePath)
       }
 
       if launchctl.loadState(service: service) == false {
-        print("[WARN] \(service) already unloaded", to: &stderr)
+        logger.warn("\(service) already unloaded")
       } else {
         bootoutServices.insert(service)
       }
@@ -77,12 +78,12 @@ extension Plan {
       let destinationServicePath = serviceDirectory.servicePath(name: name)
 
       if !FileManager.default.fileExists(atPath: destinationServicePath.path) {
-        print("[WARN] \(destinationServicePath.path) does not exist", to: &stderr)
+        logger.warn("\(destinationServicePath.path) does not exist")
       }
       enableServicePaths[destinationServicePath] = servicePath
 
       if launchctl.loadState(service: service) == false {
-        print("[WARN] \(service) not loaded", to: &stderr)
+        logger.warn("\(service) not loaded")
       } else {
         bootoutServices.insert(service)
       }
@@ -102,17 +103,15 @@ extension Plan {
       }
       return servicePaths
     } catch {
-      var stderr = StandardErrorStream()
-      print("[ERROR] Reading plists from \(directory): \(error)", to: &stderr)
+      logger.error("Reading plists from \(directory): \(error)")
       return [:]
     }
   }
 
   func execute(dryRun: Bool, installMethod: InstallMethod, waitTimeout: Duration) throws -> Int {
-    var stderr = StandardErrorStream()
     var executionErrors = 0
 
-    let launchctl = Launchctl(dryRun: dryRun)
+    let launchctl = Launchctl(logger: logger, dryRun: dryRun)
     let shellUtils = ShellUtils(dryRun: dryRun)
 
     var waitForServiceToLoad: Set<ServiceTarget> = Set()
@@ -135,7 +134,7 @@ extension Plan {
           )
         }
       } catch {
-        print("\(error)", to: &stderr)
+        logger.error("\(error)")
         executionErrors += 1
       }
     }
@@ -144,7 +143,7 @@ extension Plan {
       do {
         try shellUtils.rm(file: servicePath.path, sudo: servicePath.needsSudo)
       } catch {
-        print("\(error)", to: &stderr)
+        logger.error("\(error)")
         executionErrors += 1
       }
     }
@@ -154,7 +153,7 @@ extension Plan {
         try launchctl.bootout(service: service)
         waitForServiceToUnload.insert(service)
       } catch {
-        print("\(error)", to: &stderr)
+        logger.error("\(error)")
         executionErrors += 1
       }
     }
@@ -167,7 +166,7 @@ extension Plan {
           timeout: waitTimeout
         )
       } catch {
-        print("\(error)", to: &stderr)
+        logger.error("\(error)")
         executionErrors += 1
       }
     }
@@ -177,7 +176,7 @@ extension Plan {
         try launchctl.bootstrap(domain: service.domain, path: servicePath)
         waitForServiceToLoad.insert(service)
       } catch {
-        print("\(error)", to: &stderr)
+        logger.error("\(error)")
         executionErrors += 1
       }
     }
@@ -190,7 +189,7 @@ extension Plan {
           timeout: waitTimeout
         )
       } catch {
-        print("\(error)", to: &stderr)
+        logger.error("\(error)")
         executionErrors += 1
       }
     }

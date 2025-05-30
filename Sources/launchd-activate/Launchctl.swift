@@ -1,6 +1,7 @@
 import Foundation
 
 struct Launchctl {
+  let logger: Logger
   var dryRun: Bool = false
 }
 
@@ -86,8 +87,7 @@ extension Launchctl {
     let start = clock.now
     while loadState(service: service) != loaded {
       if clock.now - start > timeout {
-        var stderr = StandardErrorStream()
-        print("[ERROR] Timed out waiting for \(service) to \(stateStr)", to: &stderr)
+        logger.error("Timed out waiting for \(service) to \(stateStr)")
         throw Launchctl.Error.timeout(service: service)
       }
       Thread.sleep(forTimeInterval: 1)

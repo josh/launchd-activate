@@ -8,6 +8,7 @@ struct Command {
   var serviceDirectory: ServiceDirectory = .currentUser
   var dryRun: Bool = false
   var verbose: Bool = false
+  var logger: Logger = .info
   var installMethod: InstallMethod = .symlink
   var timeout: Duration = .seconds(10)
   var showHelp: Bool = false
@@ -29,8 +30,6 @@ struct Command {
   }
 
   init(_ arguments: [String]) throws {
-    var stderr = StandardErrorStream()
-
     var args: [String] = []
 
     for arg in arguments.dropFirst() {
@@ -44,6 +43,7 @@ struct Command {
           self.dryRun = true
         case "-v", "--verbose":
           self.verbose = true
+          self.logger = .debug
         case "--system":
           self.domain = .system
           self.serviceDirectory = .system
@@ -61,7 +61,7 @@ struct Command {
           self.installMethod = .symlink
         default:
           printUsage()
-          print("error: unknown option: \(arg)", to: &stderr)
+          logger.error("unknown option: \(arg)")
           exit(1)
         }
       } else {
@@ -87,7 +87,7 @@ struct Command {
     let newPath = URL(fileURLWithPath: args[0]).standardized.resolvingSymlinksInPath()
     if FileManager.default.fileExists(atPath: newPath.path) == false {
       printUsage()
-      print("error: \(newPath) does not exist", to: &stderr)
+      logger.error("\(newPath) does not exist")
       exit(1)
     }
     self.newPath = newPath
@@ -96,7 +96,7 @@ struct Command {
       let oldPath = URL(fileURLWithPath: args[1]).standardized.resolvingSymlinksInPath()
       if FileManager.default.fileExists(atPath: oldPath.path) == false {
         printUsage()
-        print("error: \(oldPath) does not exist", to: &stderr)
+        logger.error("\(oldPath) does not exist")
         exit(1)
       }
       self.oldPath = oldPath
@@ -112,17 +112,14 @@ struct Command {
   }
 
   func run() throws -> Int32 {
-    var stderr = StandardErrorStream()
-    var plan = Plan()
+    var plan = Plan(logger: logger)
     plan.prepare(
       domain: domain,
       serviceDirectory: serviceDirectory,
       newPath: newPath,
       oldPath: oldPath
     )
-    if verbose {
-      print("[DEBUG] \(plan.debugDescription)", to: &stderr)
-    }
+    logger.debug(plan.debugDescription)
     let executionErrors = try plan.execute(
       dryRun: dryRun,
       installMethod: installMethod,
