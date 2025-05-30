@@ -7,6 +7,7 @@ struct Command {
   var domain: DomainTarget = .currentGUI
   var serviceDirectory: ServiceDirectory = .currentUser
   var dryRun: Bool = false
+  var verbose: Bool = false
   var installMethod: InstallMethod = .symlink
   var timeout: Duration = .seconds(10)
   var showHelp: Bool = false
@@ -41,6 +42,8 @@ struct Command {
           self.showVersion = true
         case "-n", "--dry-run":
           self.dryRun = true
+        case "-v", "--verbose":
+          self.verbose = true
         case "--system":
           self.domain = .system
           self.serviceDirectory = .system
@@ -109,6 +112,7 @@ struct Command {
   }
 
   func run() throws -> Int32 {
+    var stderr = StandardErrorStream()
     var plan = Plan()
     plan.prepare(
       domain: domain,
@@ -116,6 +120,9 @@ struct Command {
       newPath: newPath,
       oldPath: oldPath
     )
+    if verbose {
+      print("[DEBUG] \(plan.debugDescription)", to: &stderr)
+    }
     let executionErrors = try plan.execute(
       dryRun: dryRun,
       installMethod: installMethod,

@@ -199,6 +199,56 @@ extension Plan {
   }
 }
 
+extension Plan: CustomDebugStringConvertible {
+  var debugDescription: String {
+    var description = "Plan execution summary:\n"
+
+    if !enableServicePaths.isEmpty {
+      description += "\nFile operations (enable/install):\n"
+      for (destinationPath, sourcePath) in enableServicePaths {
+        description += "  • Install: \(sourcePath.path) → \(destinationPath.path)\n"
+      }
+    }
+
+    if !disableServicePaths.isEmpty {
+      description += "\nFile operations (disable/remove):\n"
+      for servicePath in disableServicePaths {
+        description += "  • Remove: \(servicePath.path)\n"
+      }
+    }
+
+    if !bootoutServices.isEmpty {
+      description += "\nServices to bootout (unload):\n"
+      for service in bootoutServices {
+        description += "  • Bootout: \(service)\n"
+      }
+    }
+
+    if !bootstrapServices.isEmpty {
+      description += "\nServices to bootstrap (load):\n"
+      for (service, servicePath) in bootstrapServices {
+        description += "  • Bootstrap: \(service) from \(servicePath.path)\n"
+      }
+    }
+
+    let totalOperations =
+      enableServicePaths.count + disableServicePaths.count + bootoutServices.count
+      + bootstrapServices.count
+
+    if totalOperations == 0 {
+      description += "\nNo operations planned.\n"
+    } else {
+      description += "\nTotal operations: \(totalOperations)\n"
+      description += "  - File installs: \(enableServicePaths.count)\n"
+      description += "  - File removals: \(disableServicePaths.count)\n"
+      description += "  - Service bootouts: \(bootoutServices.count)\n"
+      description += "  - Service bootstraps: \(bootstrapServices.count)\n"
+    }
+
+    return description
+  }
+}
+
 enum InstallMethod {
   case copy
   case symlink
