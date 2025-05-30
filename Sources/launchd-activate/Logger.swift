@@ -15,25 +15,25 @@ extension Logger: Comparable {
 
 extension Logger {
   func debug(_ message: String) {
-    guard self >= .debug else { return }
+    guard self <= .debug else { return }
     var stderr = StandardErrorStream()
     print("[DEBUG] \(message)", to: &stderr)
   }
 
   func info(_ message: String) {
-    guard self >= .info else { return }
+    guard self <= .info else { return }
     var stderr = StandardErrorStream()
     print("[INFO] \(message)", to: &stderr)
   }
 
   func warn(_ message: String) {
-    guard self >= .warning else { return }
+    guard self <= .warning else { return }
     var stderr = StandardErrorStream()
     print("[WARN] \(message)", to: &stderr)
   }
 
   func error(_ message: String) {
-    guard self >= .error else { return }
+    guard self <= .error else { return }
     var stderr = StandardErrorStream()
     print("[ERROR] \(message)", to: &stderr)
   }
