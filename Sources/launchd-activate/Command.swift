@@ -7,7 +7,6 @@ struct Command {
   var domain: DomainTarget = .currentGUI
   var serviceDirectory: ServiceDirectory = .currentUser
   var dryRun: Bool = false
-  var verbose: Bool = false
   var logger: Logger = .info
   var installMethod: InstallMethod = .symlink
   let bootstrapTimeout: Duration = .seconds(10)
@@ -43,7 +42,6 @@ struct Command {
         case "-n", "--dry-run":
           self.dryRun = true
         case "-v", "--verbose":
-          self.verbose = true
           self.logger = .debug
         case "--system":
           self.domain = .system
