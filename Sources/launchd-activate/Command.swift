@@ -103,7 +103,8 @@ struct Command {
   }
 
   func printUsage() {
-    print("usage: launchd-activate [--system | --user | --user-all] NEW [OLD]")
+    var stderr = StandardErrorStream()
+    print("usage: launchd-activate [--system | --user | --user-all] NEW [OLD]", to: &stderr)
   }
 
   func printVersion() {
