@@ -123,7 +123,6 @@ struct Command {
       newPath: newPath,
       oldPath: oldPath
     )
-    logger.debug(plan.debugDescription)
     let executionErrors = try plan.execute(dryRun: dryRun)
     return Int32(executionErrors)
   }

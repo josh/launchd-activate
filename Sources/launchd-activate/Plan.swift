@@ -20,6 +20,9 @@ extension Plan {
     newPath: URL,
     oldPath: URL?
   ) {
+    logger.debug(
+      "Preparing plan to activate from \(oldPath?.path ?? "/dev/null") to \(newPath.path)")
+
     let launchctl = Launchctl(logger: logger, dryRun: true)
 
     let newServicePaths = readServicePaths(in: newPath)
@@ -115,6 +118,8 @@ extension Plan {
         bootstrapServices[service] = destinationServicePath
       }
     }
+
+    logger.debug("\(debugDescription)")
   }
 
   private func readServicePaths(in directory: URL) -> [String: ServicePath] {
@@ -153,6 +158,8 @@ extension Plan {
   }
 
   func execute(dryRun: Bool) throws -> Int {
+    logger.debug("Executing activation plan")
+
     var executionErrors = 0
 
     let launchctl = Launchctl(logger: logger, dryRun: dryRun)
@@ -237,6 +244,8 @@ extension Plan {
         executionErrors += 1
       }
     }
+
+    logger.debug("Plan execution completed with \(executionErrors) errors")
 
     return executionErrors
   }
