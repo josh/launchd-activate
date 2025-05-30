@@ -3,6 +3,8 @@ import Foundation
 struct Plan {
   let logger: Logger
   let installMethod: InstallMethod
+  let bootstrapTimeout: Duration
+  let bootoutTimeout: Duration
 
   var enableServicePaths: [ServicePath: ServicePath] = [:]
   var disableServicePaths: Set<ServicePath> = []
@@ -150,7 +152,7 @@ extension Plan {
     }
   }
 
-  func execute(dryRun: Bool, waitTimeout: Duration) throws -> Int {
+  func execute(dryRun: Bool) throws -> Int {
     var executionErrors = 0
 
     let launchctl = Launchctl(logger: logger, dryRun: dryRun)
@@ -205,7 +207,7 @@ extension Plan {
         try launchctl.waitForLoadState(
           service: service,
           loaded: false,
-          timeout: waitTimeout
+          timeout: bootoutTimeout
         )
       } catch {
         logger.error("\(error)")
@@ -228,7 +230,7 @@ extension Plan {
         try launchctl.waitForLoadState(
           service: service,
           loaded: true,
-          timeout: waitTimeout
+          timeout: bootstrapTimeout
         )
       } catch {
         logger.error("\(error)")

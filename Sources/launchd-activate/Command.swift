@@ -10,7 +10,8 @@ struct Command {
   var verbose: Bool = false
   var logger: Logger = .info
   var installMethod: InstallMethod = .symlink
-  var timeout: Duration = .seconds(10)
+  let bootstrapTimeout: Duration = .seconds(10)
+  let bootoutTimeout: Duration = .seconds(30)
   var showHelp: Bool = false
   var showVersion: Bool = false
 
@@ -112,7 +113,12 @@ struct Command {
   }
 
   func run() throws -> Int32 {
-    var plan = Plan(logger: logger, installMethod: installMethod)
+    var plan = Plan(
+      logger: logger,
+      installMethod: installMethod,
+      bootstrapTimeout: bootstrapTimeout,
+      bootoutTimeout: bootoutTimeout
+    )
     plan.prepare(
       domain: domain,
       serviceDirectory: serviceDirectory,
@@ -120,10 +126,7 @@ struct Command {
       oldPath: oldPath
     )
     logger.debug(plan.debugDescription)
-    let executionErrors = try plan.execute(
-      dryRun: dryRun,
-      waitTimeout: timeout
-    )
+    let executionErrors = try plan.execute(dryRun: dryRun)
     return Int32(executionErrors)
   }
 }
