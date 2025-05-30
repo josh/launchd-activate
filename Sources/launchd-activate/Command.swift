@@ -112,7 +112,7 @@ struct Command {
   }
 
   func run() throws -> Int32 {
-    var plan = Plan(logger: logger)
+    var plan = Plan(logger: logger, installMethod: installMethod)
     plan.prepare(
       domain: domain,
       serviceDirectory: serviceDirectory,
@@ -122,7 +122,6 @@ struct Command {
     logger.debug(plan.debugDescription)
     let executionErrors = try plan.execute(
       dryRun: dryRun,
-      installMethod: installMethod,
       waitTimeout: timeout
     )
     return Int32(executionErrors)

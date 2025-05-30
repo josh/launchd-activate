@@ -2,6 +2,7 @@ import Foundation
 
 struct Plan {
   let logger: Logger
+  let installMethod: InstallMethod
 
   var enableServicePaths: [ServicePath: ServicePath] = [:]
   var disableServicePaths: Set<ServicePath> = []
@@ -76,18 +77,41 @@ extension Plan {
     for (name, servicePath) in changedServicePaths {
       let service = servicePath.serviceTarget(domain: domain)
       let destinationServicePath = serviceDirectory.servicePath(name: name)
+      let loaded = launchctl.loadState(service: service)
+      let contentsEqual = compareFileContents(at: servicePath.url, and: destinationServicePath.url)
 
       if !FileManager.default.fileExists(atPath: destinationServicePath.path) {
         logger.warn("\(destinationServicePath.path) does not exist")
+        assert(!contentsEqual)
       }
-      enableServicePaths[destinationServicePath] = servicePath
 
-      if launchctl.loadState(service: service) == false {
-        logger.warn("\(service) not loaded")
-      } else {
-        bootoutServices.insert(service)
+      switch installMethod {
+      case .symlink:
+        let destinationLink = readlink(destinationServicePath.url)
+        logger.debug(
+          "\(destinationServicePath.path) is a symlink to \(destinationLink?.path ?? "/dev/null")")
+        if destinationLink == nil {
+          enableServicePaths[destinationServicePath] = servicePath
+        } else if destinationLink != servicePath.url {
+          enableServicePaths[destinationServicePath] = servicePath
+        }
+      case .copy:
+        if contentsEqual {
+          logger.debug("\(destinationServicePath.path) has same contents as \(servicePath.path)")
+        } else {
+          enableServicePaths[destinationServicePath] = servicePath
+        }
       }
-      bootstrapServices[service] = destinationServicePath
+
+      if contentsEqual && loaded {
+        logger.debug("\(service) does not need to be restarted")
+      } else if !loaded {
+        logger.warn("\(service) not loaded")
+        bootstrapServices[service] = destinationServicePath
+      } else if loaded {
+        bootoutServices.insert(service)
+        bootstrapServices[service] = destinationServicePath
+      }
     }
   }
 
@@ -108,7 +132,25 @@ extension Plan {
     }
   }
 
-  func execute(dryRun: Bool, installMethod: InstallMethod, waitTimeout: Duration) throws -> Int {
+  private func compareFileContents(at url1: URL, and url2: URL) -> Bool {
+    let data1 = try? Data(contentsOf: url1)
+    let data2 = try? Data(contentsOf: url2)
+    return data1 == data2
+  }
+
+  private func readlink(_ url: URL) -> URL? {
+    let fileManager = FileManager.default
+    do {
+      let attr = try fileManager.attributesOfItem(atPath: url.path)
+      guard attr[.type] as? FileAttributeType == .typeSymbolicLink else { return nil }
+      let path = try fileManager.destinationOfSymbolicLink(atPath: url.path)
+      return URL(fileURLWithPath: path)
+    } catch {
+      return nil
+    }
+  }
+
+  func execute(dryRun: Bool, waitTimeout: Duration) throws -> Int {
     var executionErrors = 0
 
     let launchctl = Launchctl(logger: logger, dryRun: dryRun)
