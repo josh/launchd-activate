@@ -8,7 +8,7 @@ struct Command {
   var serviceDirectory: ServiceDirectory = .currentUser
   var dryRun: Bool = false
   var installMethod: InstallMethod = .symlink
-  var timeout: Duration = .seconds(30)
+  var timeout: Duration = .seconds(10)
   var showHelp: Bool = false
   var showVersion: Bool = false
 
