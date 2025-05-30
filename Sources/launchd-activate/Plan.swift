@@ -129,7 +129,7 @@ extension Plan {
       }
       return servicePaths
     } catch {
-      logger.error("Reading plists from \(directory): \(error)")
+      logger.error("Reading plists from \(directory.path): \(error)")
       return [:]
     }
   }

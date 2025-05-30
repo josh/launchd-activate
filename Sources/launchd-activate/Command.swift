@@ -85,7 +85,7 @@ struct Command {
     let newPath = URL(fileURLWithPath: args[0]).standardized.resolvingSymlinksInPath()
     if FileManager.default.fileExists(atPath: newPath.path) == false {
       printUsage()
-      logger.error("\(newPath) does not exist")
+      logger.error("\(newPath.path) does not exist")
       exit(1)
     }
     self.newPath = newPath
@@ -94,7 +94,7 @@ struct Command {
       let oldPath = URL(fileURLWithPath: args[1]).standardized.resolvingSymlinksInPath()
       if FileManager.default.fileExists(atPath: oldPath.path) == false {
         printUsage()
-        logger.error("\(oldPath) does not exist")
+        logger.error("\(oldPath.path) does not exist")
         exit(1)
       }
       self.oldPath = oldPath
