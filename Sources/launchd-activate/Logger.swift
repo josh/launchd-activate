@@ -5,6 +5,8 @@ enum Logger: Int {
   case info = 1
   case warning = 2
   case error = 3
+
+  static let `default` = Self.info
 }
 
 extension Logger: Comparable {

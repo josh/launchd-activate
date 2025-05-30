@@ -7,7 +7,7 @@ struct Command {
   var domain: DomainTarget = .currentGUI
   var serviceDirectory: ServiceDirectory = .currentUser
   var dryRun: Bool = false
-  var logger: Logger = .info
+  var logger: Logger = .default
   var installMethod: InstallMethod = .symlink
   let bootstrapTimeout: Duration = .seconds(10)
   let bootoutTimeout: Duration = .seconds(30)
@@ -23,8 +23,7 @@ struct Command {
       let exitCode = try command.run()
       exit(exitCode)
     } catch {
-      var stderr = StandardErrorStream()
-      print("error: \(error)", to: &stderr)
+      Logger.default.error("\(error)")
       exit(1)
     }
   }
