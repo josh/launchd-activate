@@ -1,7 +1,5 @@
 import Foundation
 
-let version = "0.0.0"
-
 @main
 struct Command {
   var domain: DomainTarget = .currentGUI
@@ -102,7 +100,7 @@ struct Command {
   }
 
   func printVersion() {
-    print(version)
+    print(VERSION)
   }
 
   func run() throws -> Int32 {

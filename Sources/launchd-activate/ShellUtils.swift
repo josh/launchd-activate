@@ -64,10 +64,10 @@ extension ShellUtils {
 
     let process = Process()
     if sudo {
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
-      process.arguments = ["--", "/bin/ln", opts, sourceFile, targetFile]
+      process.executableURL = URL(fileURLWithPath: SUDO_PATH)
+      process.arguments = ["--", LN_PATH, opts, sourceFile, targetFile]
     } else {
-      process.executableURL = URL(fileURLWithPath: "/bin/ln")
+      process.executableURL = URL(fileURLWithPath: LN_PATH)
       process.arguments = [opts, sourceFile, targetFile]
     }
 
@@ -100,10 +100,10 @@ extension ShellUtils {
 
     let process = Process()
     if sudo {
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
-      process.arguments = ["--", "/bin/cp", sourceFile, targetFile]
+      process.executableURL = URL(fileURLWithPath: SUDO_PATH)
+      process.arguments = ["--", CP_PATH, sourceFile, targetFile]
     } else {
-      process.executableURL = URL(fileURLWithPath: "/bin/cp")
+      process.executableURL = URL(fileURLWithPath: CP_PATH)
       process.arguments = [sourceFile, targetFile]
     }
 
@@ -135,10 +135,10 @@ extension ShellUtils {
 
     let process = Process()
     if sudo {
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
-      process.arguments = ["--", "/bin/rm", file]
+      process.executableURL = URL(fileURLWithPath: SUDO_PATH)
+      process.arguments = ["--", RM_PATH, file]
     } else {
-      process.executableURL = URL(fileURLWithPath: "/bin/rm")
+      process.executableURL = URL(fileURLWithPath: RM_PATH)
       process.arguments = [file]
     }
 

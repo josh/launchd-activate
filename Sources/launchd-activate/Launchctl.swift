@@ -31,10 +31,10 @@ extension Launchctl {
 
     let process = Process()
     if sudo {
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
-      process.arguments = ["--", "/bin/launchctl"] + arguments
+      process.executableURL = URL(fileURLWithPath: SUDO_PATH)
+      process.arguments = ["--", LAUNCHCTL_PATH] + arguments
     } else {
-      process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+      process.executableURL = URL(fileURLWithPath: LAUNCHCTL_PATH)
       process.arguments = arguments
     }
 
@@ -62,7 +62,7 @@ extension Launchctl {
 extension Launchctl {
   func loadState(service: ServiceTarget) -> Bool {
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+    process.executableURL = URL(fileURLWithPath: LAUNCHCTL_PATH)
     process.arguments = ["print", "\(service)"]
     process.standardOutput = Pipe()
     process.standardError = Pipe()
