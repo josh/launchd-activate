@@ -92,11 +92,6 @@ struct Command {
 
     if args.count > 1 {
       let oldPath = URL(fileURLWithPath: args[1]).standardized.resolvingSymlinksInPath()
-      if FileManager.default.fileExists(atPath: oldPath.path) == false {
-        printUsage()
-        logger.error("\(oldPath.path) does not exist")
-        exit(1)
-      }
       self.oldPath = oldPath
     }
   }

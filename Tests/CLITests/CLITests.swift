@@ -133,6 +133,13 @@ final class CLITests: XCTestCase {
     XCTAssertEqual(process.terminationStatus, 0, output)
   }
 
+  func testActivateOldNotExists() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("missing")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    XCTAssertEqual(process.terminationStatus, 0, output)
+  }
+
   var launchAgentsDirectory: URL {
     guard let url = Bundle.module.url(forResource: "LaunchAgents", withExtension: nil) else {
       fatalError("Could not find LaunchAgents directory in bundle resources")
