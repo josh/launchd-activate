@@ -129,7 +129,7 @@ extension Plan {
       var servicePaths: [String: ServicePath] = [:]
       for url in urls {
         guard url.pathExtension == "plist" else { continue }
-        let servicePath = ServicePath(url: url)
+        let servicePath = ServicePath(url: url.resolvingSymlinksInPath())
         servicePaths[servicePath.name] = servicePath
       }
       return servicePaths
