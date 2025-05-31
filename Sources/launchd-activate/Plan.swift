@@ -258,7 +258,12 @@ extension Plan: CustomDebugStringConvertible {
     if !enableServicePaths.isEmpty {
       description += "\nFile operations (enable/install):\n"
       for (destinationPath, sourcePath) in enableServicePaths {
-        description += "  • Install: \(sourcePath.path) → \(destinationPath.path)\n"
+        switch installMethod {
+        case .symlink:
+          description += "  • Symlink: \(destinationPath.path) → \(sourcePath.path)\n"
+        case .copy:
+          description += "  • Copy: \(sourcePath.path) → \(destinationPath.path)\n"
+        }
       }
     }
 
