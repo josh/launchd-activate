@@ -1,4 +1,4 @@
-let VERSION = "0.0.0"
+let VERSION = "1.0.0"
 
 let CP_PATH = "/bin/cp"
 let LN_PATH = "/bin/ln"
