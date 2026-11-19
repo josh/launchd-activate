@@ -1,19 +1,69 @@
-import XCTest
+import Foundation
+import Testing
 
-final class CLITests: XCTestCase {
-  func testVersion() throws {
+struct CLITests {
+  @Test func version() throws {
     let (process, output) = try launchdActivate("--version")
-    XCTAssertEqual(process.terminationStatus, 0)
+    #expect(process.terminationStatus == 0)
     let trimmed = output.trimmingCharacters(in: .whitespacesAndNewlines)
     let parts = trimmed.split(separator: ".")
-    XCTAssertEqual(parts.count, 3)
-    XCTAssertTrue(parts.allSatisfy { Int($0) != nil })
+    #expect(parts.count == 3)
+    #expect(parts.allSatisfy { Int($0) != nil })
   }
 
-  func testHelp() throws {
+  @Test func help() throws {
     let (process, output) = try launchdActivate("--help")
-    XCTAssertEqual(process.terminationStatus, 0)
-    XCTAssertTrue(output.hasPrefix("usage:"))
+    #expect(process.terminationStatus == 0)
+    #expect(output.hasPrefix("usage:"))
+  }
+
+  @Test(arguments: ["a", "b", "c", "d"])
+  func activateSymlink(agents: String) throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent(agents)
+    let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
+  }
+
+  @Test(arguments: ["a", "b", "c", "d"])
+  func activateCopy(agents: String) throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent(agents)
+    let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
+  }
+
+  @Test(arguments: ["a", "b", "c", "d"])
+  func activateNoChange(agents: String) throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent(agents)
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
+  }
+
+  @Test func activateUpdate() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
+  }
+
+  @Test func activateAdd() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("d")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
+  }
+
+  @Test func activateAddRemove() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
+  }
+
+  @Test func activateOldNotExists() throws {
+    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
+    let oldAgents = launchAgentsDirectory.appendingPathComponent("missing")
+    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
+    #expect(process.terminationStatus == 0, "\(output)")
   }
 
   func launchdActivate(_ arguments: String...) throws -> (Process, String) {
@@ -34,112 +84,6 @@ final class CLITests: XCTestCase {
     return (process, output)
   }
 
-  func testActivateSymlink() throws {
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("a")
-      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("c")
-      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("d")
-      let (process, output) = try launchdActivate("--dry-run", "--symlink", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-  }
-
-  func testActivateCopy() throws {
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("a")
-      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("c")
-      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("d")
-      let (process, output) = try launchdActivate("--dry-run", "--copy", newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-  }
-
-  func testActivateNoChange() throws {
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("a")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("c")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-
-    do {
-      let newAgents = launchAgentsDirectory.appendingPathComponent("d")
-      let (process, output) = try launchdActivate("--dry-run", newAgents.path, newAgents.path)
-      XCTAssertEqual(process.terminationStatus, 0, output)
-    }
-  }
-
-  func testActivateUpdate() throws {
-    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
-    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
-    XCTAssertEqual(process.terminationStatus, 0, output)
-  }
-
-  func testActivateAdd() throws {
-    let newAgents = launchAgentsDirectory.appendingPathComponent("d")
-    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
-    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
-    XCTAssertEqual(process.terminationStatus, 0, output)
-  }
-
-  func testActivateAddRemove() throws {
-    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-    let oldAgents = launchAgentsDirectory.appendingPathComponent("a")
-    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
-    XCTAssertEqual(process.terminationStatus, 0, output)
-  }
-
-  func testActivateOldNotExists() throws {
-    let newAgents = launchAgentsDirectory.appendingPathComponent("b")
-    let oldAgents = launchAgentsDirectory.appendingPathComponent("missing")
-    let (process, output) = try launchdActivate("--dry-run", newAgents.path, oldAgents.path)
-    XCTAssertEqual(process.terminationStatus, 0, output)
-  }
-
   var launchAgentsDirectory: URL {
     guard let url = Bundle.module.url(forResource: "LaunchAgents", withExtension: nil) else {
       fatalError("Could not find LaunchAgents directory in bundle resources")
@@ -147,9 +91,17 @@ final class CLITests: XCTestCase {
     return url
   }
 
+  // The resource bundle sits beside the executable or inside the test bundle,
+  // depending on the SwiftPM build system, so search its ancestors.
   var productsDirectory: URL {
-    for bundle in Bundle.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
-      return bundle.bundleURL.deletingLastPathComponent()
+    var url = Bundle.module.bundleURL
+    while url.path != "/" {
+      url.deleteLastPathComponent()
+      if FileManager.default.isExecutableFile(
+        atPath: url.appendingPathComponent("launchd-activate").path)
+      {
+        return url
+      }
     }
     fatalError("couldn't find the products directory")
   }
