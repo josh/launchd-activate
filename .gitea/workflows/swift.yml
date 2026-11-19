@@ -1,0 +1,28 @@
+name: Swift
+
+on: [push]
+
+jobs:
+  swift:
+    runs-on: macos-arm64
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Show toolchain
+        run: |
+          echo "$PATH"
+          sw_vers -productVersion
+          xcode-select -p
+          swift --version
+
+      - name: Build
+        run: swift build --verbose
+
+      - name: Run executable
+        run: swift run launchd-activate --help
+
+      - name: Run tests
+        run: |
+          swift test -Xswiftc -load-plugin-library \
+            -Xswiftc "$(xcode-select -p)/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib"
